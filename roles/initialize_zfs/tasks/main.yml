@@ -5,7 +5,7 @@
     name: "{{ jails_zfs_store_root }}/jails"
     state: present
     extra_zfs_properties:
-      mountpoint: "{{ jails_jail_mountpoint }}"
+      mountpoint: "{{ jails_mountpoint }}"
 
 - name: Create ZFS jails storage
   community.general.zfs:

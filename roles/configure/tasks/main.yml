@@ -9,4 +9,4 @@
     mode: 0644
     backup: false
   when: "{{ lookup('ansible.builtin.first_found', [{{item}}]) }}" | len == 0
-  with_items: "{{jails_jail_names}}"
+  with_items: "{{jails_names}}"

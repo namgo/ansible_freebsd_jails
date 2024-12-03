@@ -7,12 +7,12 @@
   # NOTE: I don't know a good way to define top level variables
   # so I in order to pass linting I have removed defaults
   vars:
-    jails_jail_names:
+    jails_names:
       - example01
       - example02
     jails_interface: re0
     jails_zfs_store_root: zroot
-    jails_jail_mountpoint: /usr/local/jails
+    jails_mountpoint: /usr/local/jails
     jails_freebsd_release: 14.1
   roles:
     - namgo.freebsd_jails.service

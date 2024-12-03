@@ -8,7 +8,7 @@
 - name: Download FreeBSD to media store
   ansible.builtin.get_url:
     url: "https://download.freebsd.org/ftp/releases/amd64/amd64/{{ jails_freebsd_release }}-RELEASE/base.txz"
-    dest: "{{ jails_jail_mountpoint }}/media/{{ jails_freebsd_release }}-RELEASE-base.txz"
+    dest: "{{ jails_mountpoint }}/media/{{ jails_freebsd_release }}-RELEASE-base.txz"
     owner: root
     group: wheel
     mode: "0644"
@@ -16,20 +16,20 @@
 
 - name: Ensure container locations exist
   ansible.builtin.file:
-    path: "{{ jails_jail_mountpoint }}/containers/{{ item }}"
+    path: "{{ jails_mountpoint }}/containers/{{ item }}"
     owner: root
     group: wheel
     mode: u=rwX,g=r,o=r
     state: directory
-  with_items: "{{ jails_jail_names }}"
+  with_items: "{{ jails_names }}"
 
 - name: Extract FreeBSD into jail container
   ansible.builtin.command: >-
-    tar -xf {{ jails_jail_mountpoint }}/media/{{ jails_freebsd_release }}-RELEASE-base.txz
-    -C {{ jails_jail_mountpoint }}/containers/{{ item }} --unlink
+    tar -xf {{ jails_mountpoint }}/media/{{ jails_freebsd_release }}-RELEASE-base.txz
+    -C {{ jails_mountpoint }}/containers/{{ item }} --unlink
   args:
-    creates: "{{ jails_jail_mountpoint }}/containers/{{ item }}/COPYRIGHT"
-  with_items: "{{ jail_jail_names }}"
+    creates: "{{ jails_mountpoint }}/containers/{{ item }}/COPYRIGHT"
+  with_items: "{{ jails_names }}"
   tags:
     # NOTE: command is required here afaik, builtin unarchive doesn't handle bsdtar
     - skip_ansible_lint
@@ -37,26 +37,26 @@
 - name: Copy (remote) localtime to jails
   ansible.builtin.copy:
     src: /etc/localtime
-    dest: "{{ jails_jail_mountpoint }}/containers/{{ item }}/etc/localtime"
+    dest: "{{ jails_mountpoint }}/containers/{{ item }}/etc/localtime"
     remote_src: true
     owner: root
     group: wheel
     mode: "0644"
-  with_items: "{{ jails_jail_names }}"
+  with_items: "{{ jails_names }}"
 
 - name: Deploy resolv.conf
   ansible.builtin.template:
     src: resolv.conf.j2
-    dest: "{{ jails_jail_mountpoint }}/containers/{{ item }}/etc/resolv.conf"
+    dest: "{{ jails_mountpoint }}/containers/{{ item }}/etc/resolv.conf"
     owner: root
     group: wheel
     mode: "0644"
-  with_items: "{{ jails_jail_names }}"
+  with_items: "{{ jails_names }}"
 
 - name: Fetch Install freebsd-update
   ansible.builtin.command: >-
-    freebsd-update -b {{ jails_jail_mountpoint }}/containers/{{ item }}/ fetch install
-    && touch {{ jails_jail_mountpoint }}/containers/{{ item }}/ANSIBLE_PROVISIONED
+    freebsd-update -b {{ jails_mountpoint }}/containers/{{ item }}/ fetch install
+    && touch {{ jails_mountpoint }}/containers/{{ item }}/ANSIBLE_PROVISIONED
   args:
-    creates: "{{ jails_jail_mountpoint }}/containers/{{ item }}/ANSIBLE_PROVISIONED"
-  with_items: "{{ jails_jail_names }}"
+    creates: "{{ jails_mountpoint }}/containers/{{ item }}/ANSIBLE_PROVISIONED"
+  with_items: "{{ jails_names }}"
