@@ -16,5 +16,5 @@
     jails_freebsd_release: 14.1
   roles:
     - namgo.freebsd_jails.service
-    - namgo.freebsd_jails.initalize_zfs
+    - namgo.freebsd_jails.initialize_zfs
     - namgo.freebsd_jails.install
