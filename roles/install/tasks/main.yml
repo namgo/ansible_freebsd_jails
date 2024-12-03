@@ -53,10 +53,10 @@
     mode: "0644"
   with_items: "{{ jails_names }}"
 
-- name: Fetch Install freebsd-update
-  ansible.builtin.command: >-
-    freebsd-update -b {{ jails_mountpoint }}/containers/{{ item }}/ fetch install
-    && touch {{ jails_mountpoint }}/containers/{{ item }}/ANSIBLE_PROVISIONED
-  args:
-    creates: "{{ jails_mountpoint }}/containers/{{ item }}/ANSIBLE_PROVISIONED"
-  with_items: "{{ jails_names }}"
+# NOTE: update isn't strictly necessary and should go elsewhere
+# maybe another role?
+# - name: Fetch Install freebsd-update
+#   ansible.builtin.command: "freebsd-update -b {{ jails_mountpoint }}/containers/{{ item }}/ fetch install"
+#   args:
+#     creates: "{{ jails_mountpoint }}/containers/{{ item }}/usr/local/bin/"
+#   with_items: "{{ jails_names }}"
