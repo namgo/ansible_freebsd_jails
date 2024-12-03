@@ -1,0 +1,12 @@
+---
+
+- name: Install jail configs
+  ansible.builtin.template: 
+    src: basicjail.conf.j2 # use default for now
+    dest: "/etc/jail.conf.d/{{ item }}.conf"
+    owner: root
+    group: wheel
+    mode: 0644
+    backup: false
+  when: "{{ lookup('ansible.builtin.first_found', [{{item}}]) }}" | len == 0
+  with_items: "{{jails_jail_names}}"

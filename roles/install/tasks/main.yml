@@ -1,0 +1,62 @@
+---
+
+- name: Check FreeBSD release in media store
+  ansible.builtin.stat:
+    path: "/usr/local/jails/media/{{ jails_freebsd_release }}-RELEASE-base.txz"
+  register: media_stat
+
+- name: Download FreeBSD to media store
+  ansible.builtin.get_url:
+    url: "https://download.freebsd.org/ftp/releases/amd64/amd64/{{ jails_freebsd_release }}-RELEASE/base.txz"
+    dest: "{{ jails_jail_mountpoint }}/media/{{ jails_freebsd_release }}-RELEASE-base.txz"
+    owner: root
+    group: wheel
+    mode: "0644"
+  when: not media_stat.stat.exists
+
+- name: Ensure container locations exist
+  ansible.builtin.file:
+    path: "{{ jails_jail_mountpoint }}/containers/{{ item }}"
+    owner: root
+    group: wheel
+    mode: u=rwX,g=r,o=r
+    state: directory
+  with_items: "{{ jails_jail_names }}"
+
+- name: Extract FreeBSD into jail container
+  ansible.builtin.command: >-
+    tar -xf {{ jails_jail_mountpoint }}/media/{{ jails_freebsd_release }}-RELEASE-base.txz
+    -C {{ jails_jail_mountpoint }}/containers/{{ item }} --unlink
+  args:
+    creates: "{{ jails_jail_mountpoint }}/containers/{{ item }}/COPYRIGHT"
+  with_items: "{{ jail_jail_names }}"
+  tags:
+    # NOTE: command is required here afaik, builtin unarchive doesn't handle bsdtar
+    - skip_ansible_lint
+
+- name: Copy (remote) localtime to jails
+  ansible.builtin.copy:
+    src: /etc/localtime
+    dest: "{{ jails_jail_mountpoint }}/containers/{{ item }}/etc/localtime"
+    remote_src: true
+    owner: root
+    group: wheel
+    mode: "0644"
+  with_items: "{{ jails_jail_names }}"
+
+- name: Deploy resolv.conf
+  ansible.builtin.template:
+    src: resolv.conf.j2
+    dest: "{{ jails_jail_mountpoint }}/containers/{{ item }}/etc/resolv.conf"
+    owner: root
+    group: wheel
+    mode: "0644"
+  with_items: "{{ jails_jail_names }}"
+
+- name: Fetch Install freebsd-update
+  ansible.builtin.command: >-
+    freebsd-update -b {{ jails_jail_mountpoint }}/containers/{{ item }}/ fetch install
+    && touch {{ jails_jail_mountpoint }}/containers/{{ item }}/ANSIBLE_PROVISIONED
+  args:
+    creates: "{{ jails_jail_mountpoint }}/containers/{{ item }}/ANSIBLE_PROVISIONED"
+  with_items: "{{ jails_jail_names }}"

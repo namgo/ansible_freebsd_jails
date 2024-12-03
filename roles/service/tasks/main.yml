@@ -1,0 +1,11 @@
+---
+
+- name: Ensure jails are enabled 1/2
+  ansible.builtin.command: sysrc jail_enable="YES"
+  tags:
+    - skip_ansible_lint
+
+- name: Ensure jails are enabled with parallel start
+  ansible.builtin.command: sysrc jail_parallel_start="YES"
+  tags:
+    - skip_ansible_lint

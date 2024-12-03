@@ -1,0 +1,17 @@
+---
+
+- name: Create ZFS jails backing storage
+  community.general.zfs:
+    name: "{{ jails_zfs_store_root }}/jails"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "{{ jails_jail_mountpoint }}"
+
+- name: Create ZFS jails storage
+  community.general.zfs:
+    name: "{{ jails_zfs_store_root }}/{{ item }}"
+    state: present
+  with_items:
+    - media
+    - templates
+    - containers
