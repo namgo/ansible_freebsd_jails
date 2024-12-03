@@ -10,6 +10,7 @@
     jails_names:
       - example01
       - example02
+    jails_nameserver: "8.8.8.8"
     jails_interface: re0
     jails_zfs_store_root: zroot
     jails_mountpoint: /usr/local/jails
